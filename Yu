@@ -1,0 +1,58 @@
+def Organizer(合同,法律意见书,output_name):
+    # Import the necessary libraries
+    import re
+    from docx import Document
+    from docx import Document
+    from docx.enum.style import WD_STYLE_TYPE as ST
+    from datetime import date
+
+    # Open the Word file
+    document = Document(合同 +'.docx')
+    document2 = Document(法律意见书 +'.docx')
+    # Find the title in the Word file
+    first_line = ""
+    for para in document.paragraphs:
+        if para.text:  # Only consider non-empty paragraphs
+            first_line = para.text.split("\n")[0]
+            break
+
+    # Find the content following "甲   方:" in the Word file
+    甲方 = ""
+    pattern = re.compile(r"甲 方：")
+    for para in document.paragraphs:
+        if pattern.search(para.text):
+            甲方 = para.text[para.text.index("：")+1:]
+            break
+
+    # Find the content following "乙   方:" in the Word file
+    乙方 = ""
+    pattern = re.compile(r"乙 方：")
+    for para in document.paragraphs:
+        if pattern.search(para.text):
+            乙方 = para.text[para.text.index("：")+1:]
+            break
+
+    today = date.today()
+
+    first_line = first_line.replace(" ", "")
+    甲方 = 甲方.replace(" ", "")
+    乙方 = 乙方.replace(" ", "")
+
+
+    # Replace the specified text with the string variables
+    for para in document2.paragraphs[34:]:
+        para.text = para.text.replace("JFA", 甲方)
+        para.text = para.text.replace("YFA", 乙方)
+        para.text = para.text.replace("HT", first_line)
+        para.text = para.text.replace("Mon", str(today.month))
+        para.text = para.text.replace("Day", str(today.day))
+
+
+    # Make the 34th, 36th, 38th, and 42nd rows bold
+    for i in (34, 36, 38, 42):
+        paragraph = document2.paragraphs[i]
+        paragraph.runs[0].bold = True
+
+        
+    # Save the updated Word file
+    document2.save(str(output_name) + '.docx') 
